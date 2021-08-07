@@ -1,0 +1,372 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+	<style>
+		@import url('https://fonts.googleapis.com/css2?family=Reggae+One&display=swap');
+
+		body {
+			background-color: #000000;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		#form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+		#input { background: rgba(100, 150, 100, 0.5); border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; color:white; font-family: 'Reggae One';}
+		#input:focus { outline: none; }
+		#form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+		.listbox {
+			z-index: 200;
+			position: absolute;			/* 親(body)を基準とした絶対的な位置。別の子要素と重ね合わせできる)*/
+			width: 60%;				/* サイズを親の50%にする*/
+			margin-left: 15%;
+			margin-top: 10%;
+			overflow:hidden;			/* サイズからはみ出た分は非表示*/
+			white-space: nowrap;			/* 文字列が長くなっても折り返さない*/
+			font-family: 'Reggae One', serif;
+		}
+		ul li:nth-last-child(n+3) {  color: #009000;}			/*上から2番目*/
+		ul li:nth-last-child(n+4) {  color: #005000;}			/**/
+		ul li:nth-last-child(n+5) {  display:none;}
+		li {color:#00ff00}										/*底*/
+
+	</style>
+</head>
+
+<body>
+
+	<div class="listbox">
+		<ul style="list-style: none; padding-left:0;" id="messages" >
+ 		 <li>データ1</li>
+ 		 <li>データ2</li>
+		 <li>デ1234567890qwertyuiopasdfghjklzxcvbnm0qwertyuiopasdfghjklzxcvbnm0qwertyuiopasdfghjklzxcvbnm0qwertyuiopasdfghjklzxcvbnmータ3</li>
+	</div>
+	<form id="form" action="">
+ 		<input id="input" autocomplete="off" /><button style="font-family: 'Reggae One', serif;">Send</button>
+	</form>
+
+</body>
+
+<script src="three.min.js"></script>
+<script src="stats.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="Tween.js"></script>
+<div id="dispFPS"></div>
+<script>
+
+// ------------- 非同期通信処理 -------------
+var socket = io();
+var messages = document.getElementById('messages');
+var form = document.getElementById('form');
+var input = document.getElementById('input');
+
+form.addEventListener('submit', function(e) {		// ボタン送信イベント オーバライド
+	e.preventDefault();
+	if (input.value) {
+		socket.emit('chat message', input.value);
+		input.value = '';
+	}
+});
+
+socket.on('chat message', function(msg) {			// チャットメッセージ 通信チャネル
+	var item = document.createElement('li');
+	item.textContent = msg;
+	messages.appendChild(item);
+	window.scrollTo(0, document.body.scrollHeight);
+});
+
+var msg_holder='green';
+var msg_template = new Set(['green','yellow','red']);
+socket.on('rain message', function(msg) {			// コードレイン指示 通信チャネル
+	if(msg_holder != msg && msg_template.has(msg) ){
+		rain_changer(msg);
+		msg_holder=msg;
+	}
+});
+
+// ------------- 3Dデジタルレイン表示 -------------
+
+// レイン色セレクタ
+var rain_string='あｑｗせｄｒｆｔｇｙふじこｌｐ；＠あｑｗせｄｒｆｔｇｙふじこｌｐ；＠'
+var pre_img_selector='A';
+
+function rain_changer(color){
+	if(pre_img_selector == 'A'){
+		switch (color){
+			case 'green':
+				Prendering( pre_img_setB, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0" ,'000000000000000000000000000000000000000000000000000000000000'); break;
+			case 'yellow':
+				Prendering( pre_img_setB, "240,200,0", "200,0,0", "240,200,0", "240,0,0" ,  '111111111111111111111111111111111111111111111111111111111111'); break;
+			case 'red':
+				Prendering( pre_img_setB, "240,0,0",   "255,0,0", "240,0,0",   "255,0,0" ,rain_string); break;
+			default: break;
+		}
+		pre_img_selector = 'B';
+	}else{
+		switch (color){
+			case 'green':
+				Prendering( pre_img_setA, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0" ,'000000000000000000000000000000000000000000000000000000000000'); break;
+			case 'yellow':
+				Prendering( pre_img_setA, "240,200,0", "200,0,0", "240,200,0", "240,0,0" ,'111111111111111111111111111111111111111111111111111111111111'); break;
+			case 'red':
+				Prendering( pre_img_setA,  "240,0,0",   "255,0,0", "240,0,0",   "255,0,0" ,rain_string); break;
+			default: break;
+		}
+		pre_img_selector = 'A';
+	}
+}
+
+// Stats表示
+var stats = new Stats();
+document.getElementById("dispFPS").appendChild(stats.domElement);
+
+// 初期処理
+var width = window.innerWidth, height = window.innerHeight;
+var camera, scene, renderer;
+var canvas = document.createElement( 'canvas' );
+	canvas.width = 2048;
+	canvas.height = 2048;
+
+var ctx = canvas.getContext('2d');
+	ctx = canvas.getContext('2d');
+	ctx.scale(1,1);
+
+var texture = new THREE.Texture(canvas);
+var material = new THREE.MeshBasicMaterial({ map: texture ,transparent:true, overdraw:true, side:THREE.DoubleSide, depthTest:false });
+var geometry = new THREE.PlaneGeometry( 2000, 2000, 10 );
+
+var mesh = new THREE.Mesh( geometry, material );
+var mesh2 = new THREE.Mesh( geometry, material );
+    mesh2.position.z += 300;
+
+for(i=1;i<=5 ;i++){
+	geometry.vertices[i+16].z = geometry.vertices[16-i].z =
+	geometry.vertices[i+5].z = geometry.vertices[5-i].z = 300 * ( 1 + Math.sin( (Math.PI*3/2) +  (Math.PI/2 * i/5) ) ) ;
+}
+geometry.verticesNeedUpdate=true;
+
+var pre_img_setA  =[];
+var pre_img_setB  =[];
+
+var rains=[];
+var rain_len=30
+
+// プリレンダリング処理
+function Prendering(pre_img, color_back, color_back_shadow, color_front, color_front_shadow, text ){
+	var max_len=rain_len;
+	var char_wid=30;
+	var char_hei=30;
+	var strArray=new Array(max_len*2);
+	var fade_start=max_len/3;
+	var strArray=text.split("");			//Rain文字列
+
+	//プリレンダCanvas生成
+	for(var i=0;i<max_len*2;i++){				//配列の要素
+		var pre_canvas = document.createElement( 'canvas' );
+		var pre_ctx = pre_canvas.getContext('2d');
+		pre_canvas.width = char_wid*2;		//テキストシャドウ付ける場合は文字幅以上に大きくする必要がある
+		pre_canvas.height = char_hei*max_len;
+		pre_ctx.shadowOffsetX = pre_ctx.shadowOffsetY = 0; 
+		pre_ctx.font = "bold 30px 'terminal'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
+
+		for(var l=1;l<=i+1 && l<=max_len;l++){		//描画文字数
+			if ( l >= fade_start){
+				var alpha= (max_len-l)/(max_len-fade_start)+0.1;
+			   	pre_ctx.fillStyle   = "rgba(" + color_back + "," + alpha + ")";
+				pre_ctx.shadowColor = "rgba(" + color_back_shadow + "," + alpha + ")";
+			}else{
+			   	pre_ctx.fillStyle   = "rgba(" + color_front + ",1)";
+				pre_ctx.shadowColor = "rgba(" + color_front_shadow + ",1)";
+			}
+			pre_ctx.shadowBlur = 5;
+			pre_ctx.fillText(strArray[i+1-l],char_wid*2/2, (max_len-l+1)*char_hei-char_hei/2, char_wid );
+			pre_ctx.shadowBlur = 20;
+			pre_ctx.fillText(strArray[i+1-l],char_wid*2/2, (max_len-l+1)*char_hei-char_hei/2, char_wid );
+			pre_ctx.shadowBlur = 30;
+			pre_ctx.fillText(strArray[i+1-l],char_wid*2/2, (max_len-l+1)*char_hei-char_hei/2, char_wid );
+		}
+		pre_img[i]=pre_canvas;
+	}
+}
+
+var lotate={x:0};
+function init() {
+	renderer = new THREE.WebGLRenderer({ devicePixelRatio: 1});
+//    renderer = new THREE.WebGLRenderer();
+	renderer.setSize( window.innerWidth, window.innerHeight );
+	document.body.appendChild(renderer.domElement);
+	scene = new THREE.Scene();
+	camera = new THREE.PerspectiveCamera(70, 1, 1, 2000);
+
+	Prendering( pre_img_setA, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0", "abcdefghijklmnopqrstuvwwyzabcdefghijklmnopqrstuvwwyzabcdefgh" );
+	for(var i=0;i<66;i++){
+		rains.push( Generate_Rain() );
+		DropStart_Rain(rains[i],i);
+	}
+    scene.add(camera);
+    scene.add( mesh );
+    scene.add( mesh2 );
+
+    scene.fog = new THREE.FogExp2(0x000000, 0.0009);
+
+	/*ヘルパー表示*/
+/*	var axes = new THREE.AxisHelper(200);
+ 	scene.add(axes);
+	var gridHelper = new THREE.GridHelper(1000, 50);
+	scene.add(gridHelper);
+*/
+	Camera_work();
+}
+
+
+function Camera_work(){
+	// カメラワーク
+//	　横から
+//    camera.position.set(-1000,1500,-500);
+//    camera.lookAt({x:0, y:500, z:0 });
+
+//	　上から
+//    camera.position.set(0,2000, 100);
+//    camera.lookAt({x:0, y:0, z:0 });
+
+//　　正面から引きで
+//    camera.position.set(0, 0,1500);
+//    camera.lookAt({x:0, y:0, z:0 });
+
+//	  初期位置
+    camera.position.set(0,500, 500);
+    camera.lookAt({x:0, y:500, z:0 });
+
+	tween2 = new TWEEN.Tween( camera.rotation )
+		.to({z:-Math.PI,y:0,x:Math.PI/2}, 9000)
+		.easing(TWEEN.Easing.Quadratic.In);
+
+	tween3 = new TWEEN.Tween( camera.position )
+		.to({x:0,z:200}, 9000)
+		.easing(TWEEN.Easing.Sinusoidal.Out);
+
+	// カメラ回転 5000 + 9000
+	tween = new TWEEN.Tween( camera.rotation )
+		.delay(5000)
+		.to({z:-Math.PI/2,y:-Math.PI/2}, 9000)
+		.easing(TWEEN.Easing.Quadratic.InOut)
+		.chain(tween2,tween3);
+	tween.start();
+
+//----------------------------------------------
+
+	// カメラ移動  6000 + 8000
+	tween = new TWEEN.Tween( camera.position )
+		.delay(7000)
+		.to({y:0,x:-1000,z:200}, 7000)
+		.easing(TWEEN.Easing.Quadratic.InOut)
+	tween.start();
+
+//----------------------------------------------
+
+	// スクロール開始 7000 - 10000
+	tween = new TWEEN.Tween( lotate )
+		.delay(7000)
+		.to({x:-10000}, 10000)
+		.easing(TWEEN.Easing.Quadratic.InOut)
+	tween.start();
+
+}
+
+// rainオブジェクト
+// 色情報のプロパティを追加予定 ★
+function Generate_Rain(){
+	var rain = {};
+	rain.Member= function(twcnt, cnt, speed, img_no ,pos_x,pos_y ){
+		this.twcnt=cnt;				// Tweenに加算させるカウンタ
+		this.cnt=cnt;				// twcntの整数部
+		this.speed=speed;			// Max_len分流れるのにかかる時間ms
+		this.img_no=img_no;			// プリレンダCanvas配列の添字
+		this.pos_x=pos_x;			// 初期位置 x
+		this.pos_y=pos_y;			// 初期位置 y
+		this.img_set;				// 色（レンダリング済オブジェクト番号）
+	}
+	rain=new rain.Member(0, 0, 0, 0, 0);
+	return (rain);
+}
+
+// 各コードレイン列の位置座表計算関数。第1引数はRAINオブジェクトへのポインタ、第2引数は何列目に表示しているRAINか。
+// 指定コードレイン（rain）が下まで流し終わったら再度呼び出され、初期位置を設定して上から流しはじめる。
+// あくまでrainオブジェクトの座標プロパティを更新するだけ
+// 色情報のプロパティを更新する予定。★
+function DropStart_Rain(rain, rain_lst){
+	rain.twcnt   = 0;
+	rain.cnt     = 0;
+	rain.speed   = Math.random()*4000+2000;
+	rain.img_no  = 0;
+	rain.pos_x   = rain_lst*30;
+	rain.pos_y   = -870 + Math.random()*1000;	// -(max_len * char_hei ) +char_hei=-870
+	rain.img_set = pre_img_selector		// レンダリング済セットのどれを使うか
+
+	tween = new TWEEN.Tween( rain )	// ( 870 + 2000 )/30
+		.to({twcnt:(2000-rain.pos_y)/30 }, rain.speed)
+		.onComplete( function() {DropStart_Rain(rain, rain_lst);}  )
+	tween.start();
+}
+
+// コードレインを66本分描画する
+// 描画時に色プロパティを見て指定の色のコードレインを描画する予定 ★
+function canvas_update(){
+	var lotate_x=lotate.x;
+	ctx.clearRect(0 ,0, canvas.width,canvas.height);		/*キャンバスクリア*/
+	for(var i=0;i<66;i++){
+		var twcnt	=rains[i].twcnt;
+		var cnt		=rains[i].cnt   = Math.floor(twcnt);
+		var img_no;
+
+		if(cnt < rain_len*2){								//pre_img配列のどれを描画するか選択
+			img_no = rains[i].img_no = cnt%60;
+		}else{
+			img_no = rains[i].img_no = cnt%30 + 30;
+		}
+
+		var x	= (rains[i].pos_x + lotate_x) % (30*66) ;
+		if(x < 0){
+			x+=30*66;
+		}
+
+		if(rains[i].img_set == 'A'){
+			ctx.drawImage(pre_img_setA[img_no]  ,x  ,rains[i].pos_y+cnt*30);
+		}else{
+			ctx.drawImage(pre_img_setB[img_no]  ,x  ,rains[i].pos_y+cnt*30);
+		}
+
+	}
+    texture.needsUpdate = true;
+}
+
+var frame=0;
+function animate() {
+	frame++;
+	if( frame % 2 ==0 ){
+		TWEEN.update();
+	 	canvas_update();						//キャンバス描画
+		stats.update();							//FPS描画
+		renderer.render(scene, camera);
+	 }
+
+    requestAnimationFrame(animate);
+}
+
+function onResize() {
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+	renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+window.addEventListener('resize', onResize, false);
+init();
+animate();
+
+
+
+</script>
+</body>
+</html>
