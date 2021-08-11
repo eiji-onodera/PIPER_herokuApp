@@ -77,40 +77,52 @@ socket.on('chat message', function(msg) {			// チャットメッセージ 通�
 	window.scrollTo(0, document.body.scrollHeight);
 });
 
-var msg_holder='green';
-var msg_template = new Set(['green','yellow','red']);
-socket.on('rain message', function(msg) {			// コードレイン指示 通信チャネル
-	if(msg_holder != msg && msg_template.has(msg) ){
-		rain_changer(msg);
-		msg_holder=msg;
+
+socket.on('rain message', function(data) {			// コードレイン指示 通信チャネル
+	var color,text;
+	var col_template = new Set(['Green','Yellow','Red']);
+
+	(col_template.has(data.color))? color = data.color : color = rain_color;
+	(data.text != "" )             ?  text = data.text:text = rain_string;
+
+
+	if( color != rain_color || text != rain_string){
+		rain_color = color;
+		rain_string = text;
+		rain_changer();
 	}
 });
+
 
 // ------------- 3Dデジタルレイン表示 -------------
 
 // レイン色セレクタ
+var rain_color='Green'
 var rain_string='あｑｗせｄｒｆｔｇｙふじこｌｐ；＠あｑｗせｄｒｆｔｇｙふじこｌｐ；＠'
 var pre_img_selector='A';
 
-function rain_changer(color){
+function rain_changer(){
+
+console.log(rain_string)
+
 	if(pre_img_selector == 'A'){
-		switch (color){
-			case 'green':
-				Prendering( pre_img_setB, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0" ,'000000000000000000000000000000000000000000000000000000000000'); break;
-			case 'yellow':
-				Prendering( pre_img_setB, "240,200,0", "200,0,0", "240,200,0", "240,0,0" ,  '111111111111111111111111111111111111111111111111111111111111'); break;
-			case 'red':
+		switch (rain_color){
+			case 'Green':
+				Prendering( pre_img_setB, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0" ,rain_string); break;
+			case 'Yellow':
+				Prendering( pre_img_setB, "240,200,0", "200,0,0", "240,200,0", "240,0,0" , rain_string); break;
+			case 'Red':
 				Prendering( pre_img_setB, "240,0,0",   "255,0,0", "240,0,0",   "255,0,0" ,rain_string); break;
 			default: break;
 		}
 		pre_img_selector = 'B';
 	}else{
-		switch (color){
-			case 'green':
-				Prendering( pre_img_setA, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0" ,'000000000000000000000000000000000000000000000000000000000000'); break;
-			case 'yellow':
-				Prendering( pre_img_setA, "240,200,0", "200,0,0", "240,200,0", "240,0,0" ,'111111111111111111111111111111111111111111111111111111111111'); break;
-			case 'red':
+		switch (rain_color){
+			case 'Green':
+				Prendering( pre_img_setA, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0" ,rain_string); break;
+			case 'Yellow':
+				Prendering( pre_img_setA, "240,200,0", "200,0,0", "240,200,0", "240,0,0" ,rain_string); break;
+			case 'Red':
 				Prendering( pre_img_setA,  "240,0,0",   "255,0,0", "240,0,0",   "255,0,0" ,rain_string); break;
 			default: break;
 		}
@@ -200,7 +212,7 @@ function init() {
 	scene = new THREE.Scene();
 	camera = new THREE.PerspectiveCamera(70, 1, 1, 2000);
 
-	Prendering( pre_img_setA, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0", "abcdefghijklmnopqrstuvwwyzabcdefghijklmnopqrstuvwwyzabcdefgh" );
+	Prendering( pre_img_setA, "0,240,0",   "0,255,0", "0,240,0",   "0,255,0", rain_string );
 	for(var i=0;i<66;i++){
 		rains.push( Generate_Rain() );
 		DropStart_Rain(rains[i],i);
