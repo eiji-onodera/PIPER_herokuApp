@@ -17,7 +17,7 @@ app.get('/matrix', (req, res) => {  res.sendFile(__dirname + '/matrix.html'); })
 
 //ローカル実行の場合
 //var redis = require('redis').createClient('redis://:p6d6bb3c063e43fa4c5bd845409d95b7c36f68d62449d971963b959bdb2d3c220@ec2-44-197-80-249.compute-1.amazonaws.com:9229');
-var client = require('redis').createClient(process.env.REDIS_URL);
+var redis = require('redis').createClient(process.env.REDIS_URL);
 redis.on('connect', function() {    console.log('Connect success');});
 redis.on('error', function (err) {    console.log('Connect Error：' + err);});
 
