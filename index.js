@@ -12,7 +12,7 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 app.use(express.static('public'));
-app.get('/', (req, res) => {  res.sendFile(__dirname + '/index.html');   });
+app.get('/', (req, res) => {  res.sendFile(__dirname + '/matrix.html');   });
 app.get('/matrix', (req, res) => {  res.sendFile(__dirname + '/matrix.html'); });
 
 //ローカル実行の場合
