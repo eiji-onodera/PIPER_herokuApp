@@ -18,9 +18,8 @@ app.get('/', (req, res) => {  res.sendFile(__dirname + '/matrix.html');   });
 app.get('/matrix', (req, res) => {  res.sendFile(__dirname + '/matrix.html'); });
 
 //AWS IoT module load  and initialize
-const thingShadow = require('aws-iot-device-sdk').thingShadow;
-const thingName='Thing'
-const thingShadows = thingShadow({
+const awsIot = require('aws-iot-device-sdk');
+const device = awsIot.device({
  		host: "a287p9vwxu3415-ats.iot.us-east-2.amazonaws.com",
 		port: 8883,
 		clientId: "client",
@@ -70,15 +69,15 @@ io.on('connection', (socket) =>  {
 					break;
 
 				case 'Online':
-					thingShadows.update( thingName, {"state":{"desired":{"macine1":"Online"}}})
+					device.publish('$aws/things/Thing/shadow/update',JSON.stringify({"state":{"desired":{"macine1":"Online"}}}));
 					break;
 
 				case 'Offline':
-					thingShadows.update( thingName, {"state":{"desired":{"macine1":"Offline"}}})
+					device.publish('$aws/things/Thing/shadow/update',JSON.stringify({"state":{"desired":{"macine1":"Offline"}}}));
 					break;
 
 				case 'Status':
-					thingShadows.get(thingName);
+					device.publish('$aws/things/Thing/shadow/get');
 					break;
 
 				default:
@@ -129,33 +128,24 @@ function write_to_redis(key,val){
 //
 /////////////////////////////////////////////////////
 
-thingShadows.on('connect', function() {
-    thingShadows.register(thingName, {}, function() {
-		setTimeout(function(){console.log("Now Ready")}, 2000);
-    });
+
+device.on('connect', function() {
+	console.log('connect');
+	device.subscribe('$aws/things/Thing/shadow/update/accepted');
+	device.subscribe('$aws/things/Thing/shadow/get/accepted');
 });
 
-thingShadows.on('status',  function(thingName, stat, clientToken, stateObject) {
-//	Delta もしくは Updateの際に発生
-//	console.log('received status ⇒ '+stat+' on '+thingName+': '+JSON.stringify(stateObject));
-//  Jsonアクセスでエラー発生の可能性あり、要修正
-	var desired, reported
-	(typeof stateObject.state.desired !== 'undefined')?  desired=stateObject.state.desired.macine1 :  desired='***';
-	(typeof stateObject.state.reported !== 'undefined')? reported=stateObject.state.reported.macine1 :  reported='***';
-
-	console.log('Remort device reported '+stateObject.state.desired.macine1);
-	io.emit('chat message', 'Remote device reported '+reported+' ,desired '+ desired);
+device.on('message', function(topic, payload) {
+	console.log(payload.toString());
+ 	var jsondata = JSON.parse(payload)
+	if(typeof jsondata.state.desired !== 'undefined' && typeof jsondata.state.reported !== 'undefined' ){
+		io.emit('chat message', 'Device is '+jsondata.state.reported.macine1+", desired "+jsondata.state.desired.macine1);
+	}else if(typeof jsondata.state.desired !== 'undefined'){
+		io.emit('chat message', 'Change to desired Status: '+jsondata.state.desired.macine1);
+	}else if(typeof jsondata.state.reported !== 'undefined'){
+		io.emit('chat message', 'Device reported status: '+jsondata.state.reported.macine1);
+	}
 
 });
 
-thingShadows.on('delta',  function(thingName, stateObject) {
-	console.log('received delta ⇒ '+JSON.stringify(stateObject));
-});
 
-thingShadows.on('timeout', function(thingName, clientToken) {
-	console.warn('timeout: ' + thingName + ', clientToken=' + clientToken);
-});
-
-thingShadows.on('error', function(error) {
-	console.log('error', error);
-});
