@@ -141,7 +141,7 @@ device.on('message', function(topic, payload) {
 	if(typeof jsondata.state.desired !== 'undefined' && typeof jsondata.state.reported !== 'undefined' ){
 		io.emit('chat message', 'Device is '+jsondata.state.reported.macine1+", desired "+jsondata.state.desired.macine1);
 	}else if(typeof jsondata.state.desired !== 'undefined'){
-		io.emit('chat message', 'Change to desired Status: '+jsondata.state.desired.macine1);
+		// io.emit('chat message', 'Change to desired Status: '+jsondata.state.desired.macine1);
 	}else if(typeof jsondata.state.reported !== 'undefined'){
 		io.emit('chat message', 'Device reported status: '+jsondata.state.reported.macine1);
 	}
