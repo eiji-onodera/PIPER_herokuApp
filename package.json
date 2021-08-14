@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
+    "aws-iot-device-sdk": "^2.2.11",
     "elasticsearch": "^16.7.2",
     "express": "^4.17.1",
     "redis": "^3.1.2",

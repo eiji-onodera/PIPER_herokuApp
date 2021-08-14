@@ -1,0 +1,9 @@
+{
+ "host": "a287p9vwxu3415-ats.iot.us-east-2.amazonaws.com",
+  "port": 8883,
+  "clientId": "test",
+  "privateKey": "Thing.private.key",
+  "clientCert": "Thing.cert.pem",
+  "caCert": "root-CA.crt",
+  "thingName": "Thing"
+}
