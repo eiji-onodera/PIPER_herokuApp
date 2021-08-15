@@ -182,8 +182,7 @@ function Prendering(pre_img, color_back, color_back_shadow, color_front, color_f
 		pre_canvas.width = char_wid*2;		//テキストシャドウ付ける場合は文字幅以上に大きくする必要がある
 		pre_canvas.height = char_hei*max_len;
 		pre_ctx.shadowOffsetX = pre_ctx.shadowOffsetY = 0; 
-//		pre_ctx.font = "bold 30px 'terminal'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
-		pre_ctx.font = "bold 30px 'Reggae One'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
+		pre_ctx.font = "bold 30px 'terminal'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
 
 		for(var l=1;l<=i+1 && l<=max_len;l++){		//描画文字数
 			if ( l >= fade_start){
