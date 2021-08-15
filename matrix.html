@@ -39,10 +39,10 @@
 
 	<div class="listbox">
 		<ul style="list-style: none; padding-left:0;" id="messages" >
-		 <li>Ready to follow the white rabbit.</li>
- 		 <li>Sensor device online.</li>
- 		 <li>Asynchronous channel ready.</li>
+		 <li>I'm always follow the white rabbit.</li>
+ 		 <li>Mange console Async channel connect.</li>
  		 <li>Database replication ready.</li>
+ 		 <li>Remote device online.</li>
 	</div>
 	<form id="form" action="">
  		<input id="input" autocomplete="off" /><button style="font-family: 'Reggae One', serif;">Send</button>
@@ -182,7 +182,8 @@ function Prendering(pre_img, color_back, color_back_shadow, color_front, color_f
 		pre_canvas.width = char_wid*2;		//テキストシャドウ付ける場合は文字幅以上に大きくする必要がある
 		pre_canvas.height = char_hei*max_len;
 		pre_ctx.shadowOffsetX = pre_ctx.shadowOffsetY = 0; 
-		pre_ctx.font = "bold 30px 'terminal'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
+//		pre_ctx.font = "bold 30px 'terminal'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
+		pre_ctx.font = "bold 30px 'Reggae One'";	pre_ctx.textAlign="center";	pre_ctx.textBaseline="middle";
 
 		for(var l=1;l<=i+1 && l<=max_len;l++){		//描画文字数
 			if ( l >= fade_start){
